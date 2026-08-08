@@ -1,29 +1,21 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Electronics from './pages/Electronics';
-import Technology from './pages/Technology';
-import RnD from './pages/RnD';
+import BrandDetail from './pages/BrandDetail';
+import RnDPage from './pages/RnDPage';
+import ResearchDetail from './pages/ResearchDetail';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/brands/nibaron-electronics" element={<Electronics />} />
-        <Route path="/brands/electronics" element={<Electronics />} />
-        <Route path="/brands/nibaron-technology" element={<Technology />} />
-        <Route path="/brands/technology" element={<Technology />} />
-        <Route path="/brands/rnd" element={<RnD />} />
-        <Route path="/rnd" element={<RnD />} />
+        <Route path="/brands/:slug" element={<BrandDetail />} />
+        <Route path="/rnd" element={<RnDPage />} />
+        <Route path="/rnd/:researchId" element={<ResearchDetail />} />
+        <Route path="/researches" element={<RnDPage />} />
+        <Route path="/researches/:researchId" element={<ResearchDetail />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
-

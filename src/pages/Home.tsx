@@ -1,23 +1,49 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { fetchBrands, BrandItem } from '../lib/sheets';
 
 export default function Home() {
-  const brands = [
-    { name: 'NIBARON Electronics', path: '/brands/nibaron-electronics' },
-    { name: 'NIBARON Technology', path: '/brands/nibaron-technology' },
-    { name: 'R&D', path: '/brands/rnd' },
-  ];
+  const [brands, setBrands] = useState<BrandItem[]>([
+    {
+      name: 'NIBARON Electronics',
+      slug: 'nibaron-electronics',
+      shortDescription: 'NIBARON Electronics builds electronic products that really solve your problem',
+    },
+    {
+      name: 'NIBARON Tech',
+      slug: 'nibaron-tech',
+      shortDescription: 'NIBARON Tech builds tech product that really sloves your problem',
+    },
+    {
+      name: 'NIBARON Shanti',
+      slug: 'nibaron-shanti',
+      shortDescription: 'NIBARON Shanti works to solve human and world problen',
+    },
+  ]);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchBrands().then((items) => {
+      if (isMounted && items.length > 0) {
+        setBrands(items);
+      }
+    }).catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div 
       id="home-page" 
-      className="min-h-screen bg-white text-neutral-900 flex flex-col justify-center px-6 sm:px-12 md:px-24 max-w-4xl mx-auto py-16 selection:bg-neutral-100"
+      className="min-h-screen bg-white text-neutral-900 flex flex-col justify-between px-6 sm:px-12 md:px-24 max-w-4xl mx-auto py-16 selection:bg-neutral-100"
     >
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="space-y-12"
+        className="space-y-12 my-auto"
       >
         <div className="space-y-4">
           <h1 
@@ -35,12 +61,12 @@ export default function Home() {
           </p>
         </div>
 
-        <div id="brands-container" className="pt-8">
+        <div id="brands-container" className="pt-8 space-y-4">
           <ul id="brands-list" className="space-y-4">
             {brands.map((brand, index) => (
-              <li key={brand.path} id={`brand-item-${index}`}>
+              <li key={brand.slug || index} id={`brand-item-${index}`}>
                 <Link
-                  to={brand.path}
+                  to={`/brands/${brand.slug}`}
                   id={`brand-link-${index}`}
                   className="inline-block text-lg sm:text-xl text-neutral-800 hover:text-neutral-950 font-medium tracking-tight transition-colors duration-200 underline underline-offset-8 decoration-neutral-300 hover:decoration-neutral-950"
                 >
@@ -48,9 +74,26 @@ export default function Home() {
                 </Link>
               </li>
             ))}
+            <li id="rnd-list-item">
+              <Link
+                to="/rnd"
+                id="rnd-link-main"
+                className="inline-block text-lg sm:text-xl text-neutral-800 hover:text-neutral-950 font-medium tracking-tight transition-colors duration-200 underline underline-offset-8 decoration-neutral-300 hover:decoration-neutral-950"
+              >
+                R&D
+              </Link>
+            </li>
           </ul>
         </div>
       </motion.div>
+
+      {/* Footer */}
+      <footer id="home-footer" className="pt-16 text-xs text-neutral-400 flex items-center justify-between border-t border-neutral-100 mt-12">
+        <span>NIBARON</span>
+        <Link to="/rnd" id="rnd-link-footer" className="hover:text-neutral-900 font-medium transition-colors">
+          R&D
+        </Link>
+      </footer>
     </div>
   );
 }
