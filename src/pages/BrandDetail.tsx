@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { fetchBrands, BrandItem } from '../lib/sheets';
+import Footer from '../components/Footer';
 
 export default function BrandDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -98,13 +99,7 @@ export default function BrandDetail() {
         </div>
       </motion.div>
 
-      {/* Footer */}
-      <footer id="brand-footer" className="pt-16 text-xs text-neutral-400 flex items-center justify-between border-t border-neutral-100 mt-12">
-        <Link to="/" className="hover:text-neutral-900 transition-colors">NIBARON</Link>
-        <Link to="/rnd" className="hover:text-neutral-900 font-medium transition-colors">
-          R&D
-        </Link>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { fetchResearches, ResearchItem } from '../lib/sheets';
+import { fetchVandar, VandarItem } from '../lib/sheets';
 import Footer from '../components/Footer';
 
-export default function RnDPage() {
-  const [researches, setResearches] = useState<ResearchItem[]>([]);
+export default function VandarPage() {
+  const [items, setItems] = useState<VandarItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     let isMounted = true;
-    fetchResearches()
-      .then((items) => {
+    fetchVandar()
+      .then((data) => {
         if (isMounted) {
-          setResearches(items);
+          setItems(data);
           setLoading(false);
         }
       })
@@ -28,7 +28,7 @@ export default function RnDPage() {
 
   return (
     <div 
-      id="rnd-page" 
+      id="vandar-page" 
       className="min-h-screen bg-white text-neutral-900 flex flex-col justify-between px-6 sm:px-12 md:px-24 max-w-4xl mx-auto py-16 selection:bg-neutral-100"
     >
       <motion.div
@@ -49,35 +49,37 @@ export default function RnDPage() {
 
         <div className="space-y-4">
           <h1 
-            id="rnd-title" 
+            id="vandar-title" 
             className="text-5xl sm:text-7xl font-bold tracking-tight text-neutral-950 uppercase"
           >
-            R&D
+            VANDAR
           </h1>
           
           <p 
-            id="rnd-subtitle" 
+            id="vandar-subtitle" 
             className="text-xl sm:text-2xl text-neutral-500 font-normal leading-relaxed max-w-2xl"
           >
-            Research & Development initiative focused on fundamental problem analysis and exploratory innovations.
+            Repository and storehouse of solutions, resources, and strategic assets.
           </p>
         </div>
 
-        <div id="researches-list" className="pt-6 space-y-8">
+        <div id="vandar-items-list" className="pt-6 space-y-8">
           <div className="border-b border-neutral-100 pb-3">
             <span className="text-xs uppercase tracking-widest text-neutral-400 font-semibold">
-              Researches
+              VANDAR Archive
             </span>
           </div>
 
           {loading ? (
-            <div className="text-neutral-400 text-sm py-4">Loading research data...</div>
+            <div className="text-neutral-400 text-sm py-4">Loading VANDAR repository...</div>
+          ) : items.length === 0 ? (
+            <div className="text-neutral-400 text-sm py-4">No entries found in VANDAR repository.</div>
           ) : (
             <ul className="space-y-8">
-              {researches.map((item) => (
-                <li key={item.id} id={`research-item-${item.id}`}>
+              {items.map((item) => (
+                <li key={item.id} id={`vandar-item-${item.id}`}>
                   <Link 
-                    to={`/rnd/${item.id}`} 
+                    to={`/vandar/${item.id}`} 
                     className="group block space-y-2 cursor-pointer"
                   >
                     <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 group-hover:text-neutral-950 transition-colors underline underline-offset-8 decoration-neutral-200 group-hover:decoration-neutral-950">
@@ -89,7 +91,7 @@ export default function RnDPage() {
                       </p>
                     )}
                     <span className="inline-block text-xs uppercase tracking-wider text-neutral-400 group-hover:text-neutral-900 pt-1 font-medium transition-colors">
-                      Read Research Document →
+                      View Entry Document →
                     </span>
                   </Link>
                 </li>

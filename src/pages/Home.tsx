@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { fetchBrands, BrandItem } from '../lib/sheets';
+import Footer from '../components/Footer';
 
 export default function Home() {
   const [brands, setBrands] = useState<BrandItem[]>([
@@ -87,13 +88,7 @@ export default function Home() {
         </div>
       </motion.div>
 
-      {/* Footer */}
-      <footer id="home-footer" className="pt-16 text-xs text-neutral-400 flex items-center justify-between border-t border-neutral-100 mt-12">
-        <span>NIBARON</span>
-        <Link to="/rnd" id="rnd-link-footer" className="hover:text-neutral-900 font-medium transition-colors">
-          R&D
-        </Link>
-      </footer>
+      <Footer />
     </div>
   );
 }

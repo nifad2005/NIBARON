@@ -6,13 +6,16 @@ export interface BrandItem {
   shortDescription: string;
 }
 
-export interface ResearchItem {
+export interface DocItem {
   id: string;
   name: string;
   shortDescription: string;
   fullContent: string;
   videoUrl: string;
 }
+
+export type ResearchItem = DocItem;
+export type VandarItem = DocItem;
 
 const SPREADSHEET_ID = '1RHEk3f8K_qKBi3JFJP_1ipdj3N45vo8AA4aNVIwqDvg';
 
@@ -26,7 +29,6 @@ export function createSlug(text: string): string {
 
 export async function fetchBrands(): Promise<BrandItem[]> {
   try {
-    // Try server API first
     let csvText = '';
     try {
       const apiRes = await fetch('/api/sheet?sheet=brands', { cache: 'no-cache' });
@@ -34,7 +36,6 @@ export async function fetchBrands(): Promise<BrandItem[]> {
         csvText = await apiRes.text();
       }
     } catch {
-      // Fallback to direct Google Sheets export
       const directUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=brands`;
       const res = await fetch(directUrl, { cache: 'no-cache' });
       if (res.ok) csvText = await res.text();
@@ -79,22 +80,22 @@ export async function fetchBrands(): Promise<BrandItem[]> {
   }
 }
 
-export async function fetchResearches(): Promise<ResearchItem[]> {
+export async function fetchDocItemsFromTab(sheetName: string, fallbackItems: DocItem[] = []): Promise<DocItem[]> {
   try {
     let csvText = '';
     try {
-      const apiRes = await fetch('/api/sheet?sheet=researches', { cache: 'no-cache' });
+      const apiRes = await fetch(`/api/sheet?sheet=${encodeURIComponent(sheetName)}`, { cache: 'no-cache' });
       if (apiRes.ok) {
         csvText = await apiRes.text();
       }
     } catch {
-      const directUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=researches`;
+      const directUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
       const res = await fetch(directUrl, { cache: 'no-cache' });
       if (res.ok) csvText = await res.text();
     }
 
     if (!csvText) {
-      throw new Error('Could not fetch researches csv');
+      return fallbackItems;
     }
 
     return new Promise((resolve) => {
@@ -102,12 +103,15 @@ export async function fetchResearches(): Promise<ResearchItem[]> {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          const items: ResearchItem[] = results.data
+          const items: DocItem[] = results.data
             .map((row) => {
               const keys = Object.keys(row);
               const nameKey = keys.find((k) => k.trim().toLowerCase() === 'name') || keys[0] || '';
-              const descKey = keys.find((k) => k.trim().toLowerCase().includes('short description')) || keys[1] || '';
-              const contentKey = keys.find((k) => k.trim().toLowerCase().includes('full content')) || keys[2] || '';
+              const descKey = keys.find((k) => {
+                const lower = k.trim().toLowerCase();
+                return lower.includes('desc') || lower.includes('short');
+              }) || keys[1] || '';
+              const contentKey = keys.find((k) => k.trim().toLowerCase().includes('content')) || keys[2] || '';
               const videoKey = keys.find((k) => k.trim().toLowerCase().includes('video')) || keys[3] || '';
 
               const name = (row[nameKey] || '').trim();
@@ -126,15 +130,23 @@ export async function fetchResearches(): Promise<ResearchItem[]> {
             })
             .filter((item) => item.name);
 
-          resolve(items);
+          resolve(items.length > 0 ? items : fallbackItems);
         },
-        error: () => resolve(getFallbackResearches()),
+        error: () => resolve(fallbackItems),
       });
     });
   } catch (err) {
-    console.error('Error fetching researches:', err);
-    return getFallbackResearches();
+    console.error(`Error fetching sheet ${sheetName}:`, err);
+    return fallbackItems;
   }
+}
+
+export async function fetchResearches(): Promise<ResearchItem[]> {
+  return fetchDocItemsFromTab('researches', getFallbackResearches());
+}
+
+export async function fetchVandar(): Promise<VandarItem[]> {
+  return fetchDocItemsFromTab('vandar', []);
 }
 
 function getFallbackBrands(): BrandItem[] {
